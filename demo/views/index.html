@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>七牛云存储 - JavaScript SDK</title>
+	<title>Yangcong - Qiniu - JavaScript SDK</title>
 	<link href="favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.css">
 	<link rel="stylesheet" href="main.css">
@@ -54,7 +54,16 @@
         </ul>
         <ul class="tip col-md-12 text-mute">后端
             <li>
-                <small>demo/server.js - 需要实现 GET /qiniu/token/upload 需要加入访问控制，向前端发送uptoken，此token因安全性千万不能硬写进前端</small>
+                <small>demo/server.js</small>
+            </li>
+            <li>
+                <small>需要实现 GET /qiniu/token 需要加入访问控制，向前端发送uptoken，此token因安全性千万不能硬写进前端</small>
+            </li>
+            <li>
+                <small>需要实现 DELETE /qiniu/key/:key 需要加入访问控制, 测试代码<pre><code>curl -X DELETE http://127.0.0.1:19110/qiniu/key/123</code></pre></small>
+            </li>
+            <li>
+                <small>默认plupload会把文件名当做key，需要后端在生成token时设置key的值，同时在uploader初始化时打开save_key</small>
             </li>
             <li>
                 <small>demo/config.js - 后端token和key的配置文件，涉及机密请直接找我要</small>
@@ -104,7 +113,7 @@
             var uploader = Qiniu.uploader({
                 runtimes: 'html5,flash,html4',    //上传模式,依次退化
                 browse_button: 'pickfiles',       //上传选择的点选按钮的id，**必需**
-                uptoken_url: '/qiniu/token/upload', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+                uptoken_url: '/qiniu/token', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
                 // uptoken : '<Your upload token>', //若未指定uptoken_url,则必须指定 uptoken ,uptoken由其他程序生成
                 // unique_names: true, // 默认 false，key为文件名。若开启该选项，SDK为自动生成上传成功后的key（文件名）。
                 // save_key: true,   // 默认 false。若在服务端生成uptoken的上传策略中指定了 `sava_key`，则开启，SDK会忽略对key的处理

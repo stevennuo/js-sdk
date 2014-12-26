@@ -57,13 +57,16 @@ app.get('/', function(req, res) {
     });
 });
 
-// TODO：需要实现
+// TODO：以下均需要在matrix后端实现
 qiniu.conf.ACCESS_KEY = config.ACCESS_KEY;
 qiniu.conf.SECRET_KEY = config.SECRET_KEY;
-var uptoken = new qiniu.rs.PutPolicy(config.Bucket_Name);
-app.get('/qiniu/token/upload', function(req, res, next) {
-    // TODO：需要加入权限管理，
-    // 只有coursebuilder角色才可以访问
+
+app.get('/qiniu/token', function(req, res, next) {
+    // TODO：权限管理，
+    // 只有coursebuilder角色才可以
+
+    // TODO:生成新的key(ObjectId)，改为PutPolicy(config.Bucket_Name + ':' + ObjectId.valueOf())
+    var uptoken = new qiniu.rs.PutPolicy(config.Bucket_Name);
     var token = uptoken.token();
     res.header("Cache-Control", "max-age=0, private, must-revalidate");
     res.header("Pragma", "no-cache");
@@ -74,6 +77,22 @@ app.get('/qiniu/token/upload', function(req, res, next) {
         });
     }
 });
+app.delete('/qiniu/key/:key', function(req, res, next) {
+    // 由于policy均在后台，删除操作均由后端操作
+
+    // TODO：权限管理，
+    // 只有coursebuilder角色才可以
+
+    var client = new qiniu.rs.Client();
+    client.remove(config.Bucket_Name, req.param('key'), function(err, ret) {
+        if (!err) {
+            res.json(200);
+        } else {
+            res.json(500, err);
+        }
+    })
+});
+
 app.listen(config.Port, function() {
     console.log('Listening on port %d', config.Port);
 });
