@@ -8,14 +8,7 @@ $(function() {
     var uploader = Qiniu.uploader({
         runtimes: 'html5,flash,html4',
         browse_button: 'pickfiles',
-        container: 'container',
-        drop_element: 'container',
-        max_file_size: '100mb',
-        flash_swf_url: 'js/plupload/Moxie.swf',
-        dragdrop: true,
-        chunk_size: '4mb',
-        uptoken_url: $('#uptoken_url').val(),
-        domain: $('#domain').val(),
+        uptoken_url: '/qiniu/token/upload',
         // downtoken_url: '/downtoken',
         // unique_names: true,
         // save_key: true,
@@ -27,6 +20,14 @@ $(function() {
         //         return time;
         //     },
         // },
+        domain: 'http://7te9kf.com2.z0.glb.qiniucdn.com/',
+        container: 'container',
+        max_file_size: '100mb',
+        flash_swf_url: 'js/plupload/Moxie.swf',
+        max_retries: 3,
+        dragdrop: true,
+        drop_element: 'container',
+        chunk_size: '4mb',
         auto_start: true,
         init: {
             'FilesAdded': function(up, files) {

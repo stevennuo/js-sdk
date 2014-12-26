@@ -13,7 +13,57 @@ app.engine('html', require('ejs').renderFile);
 
 app.use(express.urlencoded());
 
-app.get('/uptoken', function(req, res, next) {
+// 可以不看
+//
+//app.post('/downtoken', function(req, res) {
+//
+//    var key = req.body.key,
+//        domain = req.body.domain;
+//
+//    //trim 'http://'
+//    if (domain.indexOf('http://') != -1) {
+//        domain = domain.substr(7);
+//    }
+//    //trim 'https://'
+//    if (domain.indexOf('https://') != -1) {
+//        domain = domain.substr(8);
+//    }
+//    //trim '/' if the domain's last char is '/'
+//    if (domain.lastIndexOf('/') === domain.length - 1) {
+//        domain = domain.substr(0, domain.length - 1);
+//    }
+//
+//    var baseUrl = qiniu.rs.makeBaseUrl(domain, key);
+//    var deadline = 3600 + Math.floor(Date.now() / 1000);
+//
+//    baseUrl += '?e=' + deadline;
+//    var signature = qiniu.util.hmacSha1(baseUrl, config.SECRET_KEY);
+//    var encodedSign = qiniu.util.base64ToUrlSafe(signature);
+//    var downloadToken = config.ACCESS_KEY + ':' + encodedSign;
+//
+//    if (downloadToken) {
+//        res.json({
+//            downtoken: downloadToken,
+//            url: baseUrl + '&token=' + downloadToken
+//        })
+//    }
+//});
+
+app.get('/', function(req, res) {
+    res.render('index.html', {
+        // 我们是镜像文件夹，在请求文件的时候传过去太复杂也没必要，可以前端写死，同时后端做安全验证
+        domain: '',//config.Domain,
+        uptoken_url: ''//config.Uptoken_Url
+    });
+});
+
+// TODO：需要实现
+qiniu.conf.ACCESS_KEY = config.ACCESS_KEY;
+qiniu.conf.SECRET_KEY = config.SECRET_KEY;
+var uptoken = new qiniu.rs.PutPolicy(config.Bucket_Name);
+app.get('/qiniu/token/upload', function(req, res, next) {
+    // TODO：需要加入权限管理，
+    // 只有coursebuilder角色才可以访问
     var token = uptoken.token();
     res.header("Cache-Control", "max-age=0, private, must-revalidate");
     res.header("Pragma", "no-cache");
@@ -24,54 +74,6 @@ app.get('/uptoken', function(req, res, next) {
         });
     }
 });
-
-app.post('/downtoken', function(req, res) {
-
-    var key = req.body.key,
-        domain = req.body.domain;
-
-    //trim 'http://'
-    if (domain.indexOf('http://') != -1) {
-        domain = domain.substr(7);
-    }
-    //trim 'https://'
-    if (domain.indexOf('https://') != -1) {
-        domain = domain.substr(8);
-    }
-    //trim '/' if the domain's last char is '/'
-    if (domain.lastIndexOf('/') === domain.length - 1) {
-        domain = domain.substr(0, domain.length - 1);
-    }
-
-    var baseUrl = qiniu.rs.makeBaseUrl(domain, key);
-    var deadline = 3600 + Math.floor(Date.now() / 1000);
-
-    baseUrl += '?e=' + deadline;
-    var signature = qiniu.util.hmacSha1(baseUrl, config.SECRET_KEY);
-    var encodedSign = qiniu.util.base64ToUrlSafe(signature);
-    var downloadToken = config.ACCESS_KEY + ':' + encodedSign;
-
-    if (downloadToken) {
-        res.json({
-            downtoken: downloadToken,
-            url: baseUrl + '&token=' + downloadToken
-        })
-    }
-});
-
-app.get('/', function(req, res) {
-    res.render('index.html', {
-        domain: config.Domain,
-        uptoken_url: config.Uptoken_Url
-    });
-});
-
-qiniu.conf.ACCESS_KEY = config.ACCESS_KEY;
-qiniu.conf.SECRET_KEY = config.SECRET_KEY;
-
-var uptoken = new qiniu.rs.PutPolicy(config.Bucket_Name);
-
-
 app.listen(config.Port, function() {
     console.log('Listening on port %d', config.Port);
 });
